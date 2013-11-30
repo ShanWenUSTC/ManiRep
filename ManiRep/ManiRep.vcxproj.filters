@@ -24,12 +24,30 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Chart.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ManifoldFace.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ManifoldRepresentation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ManiRep.cpp">
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chart.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ManifoldFace.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ManifoldRepresentation.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

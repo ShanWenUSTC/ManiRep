@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\library\CGAL\CGAL-4.2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\library\CGAL\CGAL-4.2\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\library\OpenMesh\include;D:\library\eigen;D:\library\CGAL\CGAL-4.2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\library\OpenMesh\lib;D:\library\CGAL\CGAL-4.2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -58,6 +58,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>OpenMeshCored.lib;OpenMeshToolsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -81,11 +82,17 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Chart.h" />
+    <ClInclude Include="ManifoldFace.h" />
+    <ClInclude Include="ManifoldRepresentation.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ManiRep.cpp" />
+    <ClCompile Include="Chart.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="ManifoldFace.cpp" />
+    <ClCompile Include="ManifoldRepresentation.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
