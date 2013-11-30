@@ -35,6 +35,7 @@ public:
 	void test5();
 	void test6();
 	void test7();
+	void test8();
 	void GetCoordinate(double u, double v);
 	void WriteModel();
 

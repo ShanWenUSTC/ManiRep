@@ -318,7 +318,7 @@ void ManifoldRepresentation::CatmullClarkSubdivision3()
 	Vertex_iterator viter_begin = mesh_.vertices_begin();
 	for (int i=0; i<charts_.size(); i++)
 	{
-		sub_indice subpoint_vertex = {0, 0, 0, 0};
+		sub_indice subpoint_vertex = {0, 0, i, 0};
 		charts_[i]->subindice_.push_back(subpoint_vertex);
 
 		Halfedge_vertex_circulator vcir = (viter_begin+i)->vertex_begin();
@@ -326,25 +326,11 @@ void ManifoldRepresentation::CatmullClarkSubdivision3()
 
 		for (int j=0; j<n; j++, ++vcir)
 		{
-			int flastindex;
-			if (0==j)
-			{
-				flastindex = 0;
-			} 
-			else if (1==j)
-			{
-				flastindex = 2;
-			}
-			else
-			{
-				flastindex = 1;
-			}
-
 			// subdivision points in first level
 			// facet node
 			int findex_in_mesh = vcir->facet()-mesh_.facets_begin();
 			int findex_in_P1 = num_vertices0+num_edge0+findex_in_mesh;
-			sub_indice subpoint_face = {0.5, 0.5, findex_in_P1, flastindex};
+			sub_indice subpoint_face = {0.5, 0.5, findex_in_P1, 2-j};
 			charts_[i]->subindice_.push_back(subpoint_face);
 
 			// test code
@@ -354,7 +340,7 @@ void ManifoldRepresentation::CatmullClarkSubdivision3()
 			// edge node
 			int eindex_in_mesh = (vcir-mesh_.edges_begin())/2;
 			int eindex_in_P1 = num_vertices0+eindex_in_mesh;
-			sub_indice subpoint_edge = {0, 0.5, eindex_in_P1, flastindex};
+			sub_indice subpoint_edge = {0, 0.5, eindex_in_P1, 2-j};
 			charts_[i]->subindice_.push_back(subpoint_edge);
 
 			// test code
@@ -375,7 +361,7 @@ void ManifoldRepresentation::CatmullClarkSubdivision3()
 			Edge_iterator vtmp = vcir_second->next()->next()->next();
 			int eindex_tmp = (vtmp-P1.edges_begin())/2;
 			int eindex_tmp_P2 = num_vertices1+eindex_tmp;
-			sub_indice subtmp = {0, 0.75, eindex_tmp_P2, flastindex};
+			sub_indice subtmp = {0, 0.75, eindex_tmp_P2, 2-j};
 			charts_[i]->subindice_.push_back(subtmp);
 
 			vtmp = vcir_second->opposite()->next();
@@ -452,6 +438,7 @@ void ManifoldRepresentation::GetCoordinate(double u, double v)
 	{
 		Halfedge_face_circulator fcir = fiter->facet_begin();
 		point3 coordinate(0, 0, 0);
+		double blendsign = 0;
 		do 
 		{
 			Vertex_iterator central_point_iter = fcir->vertex();
@@ -468,21 +455,10 @@ void ManifoldRepresentation::GetCoordinate(double u, double v)
 				Vertex_iterator pitertmp = pcir->opposite()->vertex();
 				if (pitertmp == pitertmp2)
 				{
-				//	indice = 2-i;
+					indice = 2-i;
 				//	indice = i;
 					
-					if (0==i)
-					{
-						indice = 0;
-					} 
-					else if (1==i)
-					{
-						indice = 2;
-					}
-					else
-					{
-						indice = 1;
-					}
+	
 
 					break;
 				}
@@ -495,6 +471,7 @@ void ManifoldRepresentation::GetCoordinate(double u, double v)
 			// 			point3 ptmp = charts_[pindex]->FuncGeometry(u, v, indice);
 			// 			cout<<"geometry: "<<ptmp[0]<<' '<<ptmp[1]<<' '<<ptmp[2]<<endl;
 			coordinate += charts_[pindex]->FuncBlend(u, v)* charts_[pindex]->FuncGeometry(u, v, indice);
+			blendsign += charts_[pindex]->FuncBlend(u,v);
 		//	cout<<"model points: "<<coordinate[0]<<' '<<coordinate[1]<<' '<<coordinate[2]<<endl;
 			
 			double dtmp = u;
@@ -502,6 +479,11 @@ void ManifoldRepresentation::GetCoordinate(double u, double v)
 			v = 1-dtmp;
 
 		} while (++fcir != fiter->facet_begin());	
+		if(blendsign < 1)
+		{
+			cout<<"blend wrong"<<endl;
+		}
+		/*cout<<"blendsign: "<<blendsign<<endl;*/
 		model_points_.push_back(coordinate);
 	}
 }
@@ -706,22 +688,53 @@ void ManifoldRepresentation::test4()
 
 void ManifoldRepresentation::test5()
 {
-	ofstream fout("test5.obj");
+	ofstream fout("single chart approximate.obj");
 
-	
 	int index = 7;
-	for (int j=0; j<charts_[index]->subindice_.size(); j++)
+	double u=0,v =0;
+	int n=10;
+	for (int i=0; i<n; i++)
 	{
-		sub_indice p = charts_[index]->subindice_[j];
-		double u = p.u;
-		double v = p.v;
-		int findex = p.findex;
-		point3 p3 = charts_[index]->FuncGeometry(u, v, findex);
-		fout<<"v "<<p3[0]<<' '<<p3[1]<<' '<<p3[2]<<endl;
+		u = 1.0*i/(n-1);
+		for (int j=0; j<n; j++)
+		{
+			v = 1.0*j/(n-1);
+			for (int k=0; k<3; k++)
+			{
+				point3 p3 = charts_[index]->FuncGeometry(u, v, k);
+				fout<<"v "<<p3[0]<<' '<<p3[1]<<' '<<p3[2]<<endl;
+			}
+		}
 	}
 	
-
 	fout.close();
+
+	ofstream fout2("cc_approximate.obj");
+	
+	int vindex=1; 
+	for(int k=0; k<charts_[vindex]->points_subdivision_.size(); k++)
+	{
+		ChartPoint cptmp = charts_[vindex]->points_subdivision_[k];
+		double dx = cptmp.x;
+		double dy = cptmp.y;
+		
+		int index = 0;
+		double x=0, y=0, z=0;
+		for (int i=0; i<4+1; i++)
+		{
+			for (int j=0; j<4+1-i; j++)
+			{
+				x += charts_[vindex]->basis_coefficients_x_[index]*pow(dx, i)*pow(dy, j);
+				y += charts_[vindex]->basis_coefficients_y_[index]*pow(dx, i)*pow(dy, j);
+				z += charts_[vindex]->basis_coefficients_z_[index]*pow(dx, i)*pow(dy, j);
+				index++;
+			}
+		}
+
+		fout2<<"v "<<x<<' '<<y<<' '<<z<<endl;
+		
+	}
+	fout2.close();
 }
 
 void ManifoldRepresentation::test6()
@@ -803,4 +816,49 @@ void ManifoldRepresentation::test7()
 // 	}	
 // 
 // 	fout.close();
+}
+
+void ManifoldRepresentation::test8()
+{
+	Polyhedron P1(mesh_);
+	Polyhedron P2(mesh_);
+	Subdivision_method_3::CatmullClark_subdivision(P1, 1);
+	Subdivision_method_3::CatmullClark_subdivision(P2, 2);
+	cout<<"mesh: "<<mesh_<<endl;
+	cout<<"P1: "<<P1<<endl;
+	cout<<"P2: "<<P2<<endl;
+// 	ofstream fout("sub_test.obj");
+// 	ofstream fout2("sub_test_3d.obj");
+// 
+// 	double dtmp=0;
+// 	double u, v;
+// 	int findex, meshindex;
+// 	int n = charts_.size();
+// 
+// 	for (int i=2; i<3; i++)
+// 	{
+// 		charts_[i]->points_subdivision_.clear();
+// 		for (int j=0; j<charts_[i]->subindice_.size(); j++)
+// 		{
+// 			u = charts_[i]->subindice_[j].u;
+// 			v = charts_[i]->subindice_[j].v;
+// 			findex = charts_[i]->subindice_[j].findex;
+// 			meshindex = charts_[i]->subindice_[j].index_in_P;
+// 			//	cout<<"meshindex: "<<meshindex<<endl;
+// 
+// 			point2 p = charts_[i]->CalculateLocalCoordinate(u, v, findex);
+// 			//		fout<<"v "<<p[0]<<' '<<p[1]<<' '<<dtmp<<endl;
+// 
+// 			Point CGp = (P.vertices_begin()+meshindex)->point();
+// 			point3 p3(CGp.x(), CGp.y(), CGp.z());
+// 					fout2<<"v "<<p3[0]<<' '<<p3[1]<<' '<<p3[2]<<endl;
+// 			ChartPoint cptmp(p[0], p[1], p3);
+// 			charts_[i]->points_subdivision_.push_back(cptmp);
+// 		}
+// 
+// 		charts_[i]->CalculatePolynomial();
+// 	}
+// 
+// 	fout.close();
+// 	fout2.close();
 }

@@ -15,7 +15,7 @@ Chart::Chart(Vertex_handle vhandle)
 {
 	vertex_index_ = vhandle;
 	valence_ = 3;
-	basis_degree_ = 4;
+	basis_degree_ = 2;
 }
 
 
@@ -36,8 +36,9 @@ double Chart::FuncBlend(double u, double v)
 	}
 	else
 	{
-		double dtmp = (u-0.125)/0.75;
-		u_ita = h(dtmp)/(h(dtmp) + h(1-dtmp));
+		double dtmp1 = (u-0.125)/0.75;
+		double dtmp2 = (1-u-0.125)/0.75;
+		u_ita = h(dtmp1)/(h(dtmp1) + h(dtmp2));
 	}
 
 	if (v<0.125)
@@ -50,8 +51,9 @@ double Chart::FuncBlend(double u, double v)
 	}
 	else
 	{
-		double dtmp = (v-0.125)/0.75;
-		v_ita = h(dtmp)/(h(dtmp) + h(1-dtmp));
+		double dtmp1 = (v-0.125)/0.75;
+		double dtmp2 = (1-v-0.125)/0.75;
+		v_ita = h(dtmp1)/(h(dtmp1) + h(dtmp2));
 	}
 	
 	return u_ita*v_ita;
