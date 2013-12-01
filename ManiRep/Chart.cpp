@@ -37,7 +37,8 @@ double Chart::FuncBlend(double u, double v)
 	else
 	{
 		double dtmp1 = (u-0.125)/0.75;
-		double dtmp2 = (1-u-0.125)/0.75;
+	//	double dtmp2 = (1-u-0.125)/0.75;
+		double dtmp2 = 1-dtmp1;
 		u_ita = h(dtmp1)/(h(dtmp1) + h(dtmp2));
 	}
 
@@ -52,7 +53,8 @@ double Chart::FuncBlend(double u, double v)
 	else
 	{
 		double dtmp1 = (v-0.125)/0.75;
-		double dtmp2 = (1-v-0.125)/0.75;
+	//	double dtmp2 = (1-v-0.125)/0.75;
+		double dtmp2 = 1-dtmp1;
 		v_ita = h(dtmp1)/(h(dtmp1) + h(dtmp2));
 	}
 	
